@@ -1,25 +1,52 @@
 import { Router, Request, Response } from 'express';
-import db, { hashPassword, verifyPassword } from '../db/database.js';
-import { authenticate, requireRole, signToken, AuthenticatedRequest } from '../middleware/auth.js';
+import crypto from 'node:crypto';
+import db, { hashPassword, isLegacyPasswordHash, verifyPassword } from '../db/database.js';
+import { authenticate, requireRole, signToken, AuthenticatedRequest, SESSION_COOKIE } from '../middleware/auth.js';
 
 const apiRouter = Router();
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS = 10;
+const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
+const DUMMY_PASSWORD_HASH = hashPassword(crypto.randomBytes(32).toString('hex'));
 
 // ==========================================
 // 1. AUTHENTICATION & USERS
 // ==========================================
 apiRouter.post('/auth/login', (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
+  const { email, password } = req.body ?? {};
+  if (
+    typeof email !== 'string' ||
+    !email.trim() ||
+    email.trim().length > 254 ||
+    typeof password !== 'string' ||
+    !password ||
+    password.length > 128
+  ) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  const user = db.getUserByEmail(email);
-  if (!user || !verifyPassword(password, user.password_hash)) {
+  const now = Date.now();
+  const key = req.ip || req.socket.remoteAddress || 'unknown';
+  let attempt = loginAttempts.get(key);
+  if (!attempt || attempt.resetAt <= now) {
+    attempt = { count: 0, resetAt: now + LOGIN_WINDOW_MS };
+    loginAttempts.set(key, attempt);
+  }
+  if (attempt.count >= MAX_LOGIN_ATTEMPTS) {
+    res.setHeader('Retry-After', Math.ceil((attempt.resetAt - now) / 1000));
+    return res.status(429).json({ error: 'Too many sign-in attempts. Try again later.' });
+  }
+
+  const user = db.getUserByEmail(email.trim().toLowerCase());
+  const validPassword = verifyPassword(password, user?.password_hash ?? DUMMY_PASSWORD_HASH);
+  if (!user || !validPassword || user.status !== 'active' || !['admin', 'editor'].includes(user.role)) {
+    attempt.count += 1;
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
-  if (user.status !== 'active') {
-    return res.status(403).json({ error: 'Account is suspended. Contact administrator.' });
+  if (isLegacyPasswordHash(user.password_hash)) {
+    db.updateUser(user.id, { password_hash: hashPassword(password) });
   }
 
   const token = signToken({
@@ -27,9 +54,17 @@ apiRouter.post('/auth/login', (req: Request, res: Response) => {
     email: user.email,
     role: user.role,
   });
+  loginAttempts.delete(key);
+  res.cookie(SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: SESSION_MAX_AGE_MS,
+    path: '/',
+  });
+  res.setHeader('Cache-Control', 'no-store');
 
   return res.json({
-    token,
     user: {
       id: user.id,
       name: user.name,
@@ -39,10 +74,22 @@ apiRouter.post('/auth/login', (req: Request, res: Response) => {
   });
 });
 
+apiRouter.post('/auth/logout', (_req: Request, res: Response) => {
+  res.clearCookie(SESSION_COOKIE, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+  });
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(204).end();
+});
+
 apiRouter.get('/auth/me', authenticate, (req: AuthenticatedRequest, res: Response) => {
   if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
   const user = db.getUserById(req.user.userId);
   if (!user) return res.status(404).json({ error: 'User not found' });
+  res.setHeader('Cache-Control', 'no-store');
 
   return res.json({
     id: user.id,
@@ -62,6 +109,47 @@ apiRouter.get('/users', authenticate, requireRole(['admin']), (_req: Request, re
     created_at: u.created_at,
   }));
   res.json(users);
+});
+
+apiRouter.post('/users', authenticate, requireRole(['admin']), (req: Request, res: Response) => {
+  const { name, email, password, role } = req.body ?? {};
+  if (
+    typeof name !== 'string' ||
+    !name.trim() ||
+    name.trim().length > 100 ||
+    typeof email !== 'string' ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
+    email.trim().length > 254 ||
+    typeof password !== 'string' ||
+    password.length < 12 ||
+    password.length > 128 ||
+    !['admin', 'editor'].includes(role)
+  ) {
+    return res.status(400).json({
+      error: 'Provide a name, valid email, password of 12-128 characters, and ADMIN or EDITOR role.',
+    });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  if (db.getUserByEmail(normalizedEmail)) {
+    return res.status(409).json({ error: 'An account with this email already exists.' });
+  }
+
+  const user = db.createUser({
+    name: name.trim(),
+    email: normalizedEmail,
+    password_hash: hashPassword(password),
+    role,
+    status: 'active',
+  });
+  return res.status(201).json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    created_at: user.created_at,
+  });
 });
 
 // ==========================================
@@ -93,7 +181,7 @@ apiRouter.get('/programmes/:id', (req: Request, res: Response) => {
   res.json(item);
 });
 
-apiRouter.post('/programmes', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/programmes', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const { name, department, description, requirements, duration, career_prospects, image_url, video_id, status } = req.body;
   if (!name || !department || !description) {
     return res.status(400).json({ error: 'Name, department, and description are required' });
@@ -114,7 +202,7 @@ apiRouter.post('/programmes', authenticate, requireRole(['admin', 'editor']), (r
   res.status(201).json(created);
 });
 
-apiRouter.put('/programmes/:id', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/programmes/:id', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const updated = db.updateProgramme(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Programme not found' });
   res.json(updated);
@@ -155,7 +243,7 @@ apiRouter.get('/facilities/:id', (req: Request, res: Response) => {
   res.json(item);
 });
 
-apiRouter.post('/facilities', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/facilities', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const { name, category, description, location, image_url, video_id, status } = req.body;
   if (!name || !category || !description) {
     return res.status(400).json({ error: 'Name, category, and description are required' });
@@ -174,7 +262,7 @@ apiRouter.post('/facilities', authenticate, requireRole(['admin', 'editor']), (r
   res.status(201).json(created);
 });
 
-apiRouter.put('/facilities/:id', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/facilities/:id', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const updated = db.updateFacility(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Facility not found' });
   res.json(updated);
@@ -199,7 +287,7 @@ apiRouter.get('/campus/:id', (req: Request, res: Response) => {
   res.json(item);
 });
 
-apiRouter.post('/campus', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/campus', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const { name, category, description, building_type, position_x, position_y, position_z, rotation_x, rotation_y, rotation_z, scale, color, status, related_programme_id, related_facility_id, related_video_id } = req.body;
   if (!name || !category) {
     return res.status(400).json({ error: 'Name and category are required' });
@@ -227,7 +315,7 @@ apiRouter.post('/campus', authenticate, requireRole(['admin', 'editor']), (req: 
   res.status(201).json(created);
 });
 
-apiRouter.put('/campus/:id', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/campus/:id', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const updated = db.updateCampusLocation(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Campus location not found' });
   res.json(updated);
@@ -320,7 +408,7 @@ apiRouter.put('/videos/:id', authenticate, requireRole(['admin', 'editor']), (re
   res.json(updated);
 });
 
-apiRouter.delete('/videos/:id', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.delete('/videos/:id', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
   const ok = db.deleteVideo(req.params.id);
   if (!ok) return res.status(404).json({ error: 'Video not found' });
   res.json({ success: true, message: 'Video deleted successfully' });
@@ -339,7 +427,7 @@ apiRouter.get('/announcements/:id', (req: Request, res: Response) => {
   res.json(item);
 });
 
-apiRouter.post('/announcements', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/announcements', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const { title, content, image_url, category, published_date, status } = req.body;
   if (!title || !content) {
     return res.status(400).json({ error: 'Title and content are required' });
@@ -357,7 +445,7 @@ apiRouter.post('/announcements', authenticate, requireRole(['admin', 'editor']),
   res.status(201).json(created);
 });
 
-apiRouter.put('/announcements/:id', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/announcements/:id', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const updated = db.updateAnnouncement(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Announcement not found' });
   res.json(updated);
@@ -382,7 +470,7 @@ apiRouter.get('/admission/:id', (req: Request, res: Response) => {
   res.json(item);
 });
 
-apiRouter.post('/admission', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/admission', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const { title, category, content, status } = req.body;
   if (!title || !content) {
     return res.status(400).json({ error: 'Title and content are required' });
@@ -398,7 +486,7 @@ apiRouter.post('/admission', authenticate, requireRole(['admin', 'editor']), (re
   res.status(201).json(created);
 });
 
-apiRouter.put('/admission/:id', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/admission/:id', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const updated = db.updateAdmissionInfo(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Admission info not found' });
   res.json(updated);
@@ -413,7 +501,7 @@ apiRouter.delete('/admission/:id', authenticate, requireRole(['admin']), (req: A
 // ==========================================
 // 8. ENQUIRIES
 // ==========================================
-apiRouter.get('/enquiries', authenticate, requireRole(['admin', 'editor']), (_req: Request, res: Response) => {
+apiRouter.get('/enquiries', authenticate, requireRole(['admin']), (_req: Request, res: Response) => {
   res.json(db.getEnquiries());
 });
 
@@ -442,7 +530,7 @@ apiRouter.post('/enquiries', (req: Request, res: Response) => {
   res.status(201).json({ success: true, message: 'Enquiry received successfully. Our admissions team will get in touch.', enquiry: created });
 });
 
-apiRouter.patch('/enquiries/:id/status', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.patch('/enquiries/:id/status', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const { status } = req.body;
   if (!['pending', 'reviewed', 'resolved'].includes(status)) {
     return res.status(400).json({ error: 'Invalid status' });
@@ -477,7 +565,7 @@ apiRouter.post('/analytics/events', (req: Request, res: Response) => {
   res.status(201).json(event);
 });
 
-apiRouter.get('/analytics/dashboard', authenticate, requireRole(['admin', 'editor']), (_req: Request, res: Response) => {
+apiRouter.get('/analytics/dashboard', authenticate, requireRole(['admin']), (_req: Request, res: Response) => {
   res.json(db.getDashboardMetrics());
 });
 
@@ -488,7 +576,7 @@ apiRouter.get('/analytics/events', authenticate, requireRole(['admin']), (_req: 
 // ==========================================
 // 10. REPORTS & CSV EXPORT
 // ==========================================
-apiRouter.get('/reports/:type', authenticate, requireRole(['admin', 'editor']), (req: AuthenticatedRequest, res: Response) => {
+apiRouter.get('/reports/:type', authenticate, requireRole(['admin']), (req: AuthenticatedRequest, res: Response) => {
   const { type } = req.params;
   const { format } = req.query;
 

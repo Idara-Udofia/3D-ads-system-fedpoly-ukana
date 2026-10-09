@@ -36,6 +36,7 @@ import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import EditorDashboardPage from './pages/editor/EditorDashboardPage';
 
 // Types & Services
 import {
@@ -116,8 +117,8 @@ function AppContent() {
   }, [location.pathname]);
 
   const activeVideo = videos.find((v) => v.id === activeVideoId) || null;
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  const isLoginPage = location.pathname === '/admin/login';
+  const isManagementRoute =
+    location.pathname.startsWith('/admin') || location.pathname.startsWith('/editor');
 
   const handleOpenEnquiryWithSubject = (subject = 'Admission Inquiry') => {
     setEnquirySubject(subject);
@@ -127,7 +128,7 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
       {/* Public Navbar (Hidden on Admin routes) */}
-      {!isAdminRoute && (
+      {!isManagementRoute && (
         <Navbar
           onOpenSearch={() => setIsSearchOpen(true)}
           onOpenEnquiry={() => handleOpenEnquiryWithSubject('Admission Inquiry')}
@@ -262,7 +263,7 @@ function AppContent() {
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminDashboardPage />
                 </AdminLayout>
@@ -270,9 +271,19 @@ function AppContent() {
             }
           />
           <Route
+            path="/editor/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['editor']}>
+                <AdminLayout>
+                  <EditorDashboardPage />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/programmes"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminProgrammesPage
                     programmes={programmes}
@@ -285,7 +296,7 @@ function AppContent() {
           <Route
             path="/admin/facilities"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminFacilitiesPage
                     facilities={facilities}
@@ -298,7 +309,7 @@ function AppContent() {
           <Route
             path="/admin/campus"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminCampusPage
                     locations={campusLocations}
@@ -328,7 +339,7 @@ function AppContent() {
           <Route
             path="/admin/admission"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminAdmissionPage
                     admissionInfo={admissionInfo}
@@ -341,7 +352,7 @@ function AppContent() {
           <Route
             path="/admin/announcements"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminAnnouncementsPage
                     announcements={announcements}
@@ -354,7 +365,7 @@ function AppContent() {
           <Route
             path="/admin/enquiries"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminEnquiriesPage
                     enquiries={enquiries}
@@ -367,7 +378,7 @@ function AppContent() {
           <Route
             path="/admin/analytics"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminAnalyticsPage />
                 </AdminLayout>
@@ -377,7 +388,7 @@ function AppContent() {
           <Route
             path="/admin/reports"
             element={
-              <ProtectedRoute allowedRoles={['admin', 'editor']}>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminReportsPage />
                 </AdminLayout>
@@ -397,7 +408,7 @@ function AppContent() {
           <Route
             path="/admin/settings"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminLayout>
                   <AdminSettingsPage />
                 </AdminLayout>
@@ -408,7 +419,7 @@ function AppContent() {
       </div>
 
       {/* Public Footer */}
-      {!isAdminRoute && <Footer />}
+      {!isManagementRoute && <Footer />}
 
       {/* Global Interactive Video Player Modal */}
       <VideoPlayerModal

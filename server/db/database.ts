@@ -136,14 +136,38 @@ export interface DatabaseSchema {
   analytics_events: AnalyticsEvent[];
 }
 
-// Password hashing utility using PBKDF2
+const LEGACY_PASSWORD_SALT = 'fedpoly_ukana_secure_salt_2026';
+const LEGACY_DEMO_USER_IDS = new Set(['usr_admin_1', 'usr_editor_1', 'usr_visitor_1']);
+
 export function hashPassword(password: string): string {
-  const salt = 'fedpoly_ukana_secure_salt_2026';
-  return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  const salt = crypto.randomBytes(16);
+  const hash = crypto.scryptSync(password, salt, 64, { N: 16384, r: 8, p: 1 });
+  return `scrypt$${salt.toString('base64url')}$${hash.toString('base64url')}`;
 }
 
 export function verifyPassword(password: string, hash: string): boolean {
-  return hashPassword(password) === hash;
+  if (hash.startsWith('scrypt$')) {
+    const [, saltText, hashText] = hash.split('$');
+    if (!saltText || !hashText) return false;
+
+    try {
+      const salt = Buffer.from(saltText, 'base64url');
+      const expected = Buffer.from(hashText, 'base64url');
+      const actual = crypto.scryptSync(password, salt, expected.length, { N: 16384, r: 8, p: 1 });
+      return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+    } catch {
+      return false;
+    }
+  }
+
+  const expected = Buffer.from(hash, 'hex');
+  if (expected.length !== 64) return false;
+  const actual = crypto.pbkdf2Sync(password, LEGACY_PASSWORD_SALT, 1000, 64, 'sha512');
+  return crypto.timingSafeEqual(expected, actual);
+}
+
+export function isLegacyPasswordHash(hash: string): boolean {
+  return !hash.startsWith('scrypt$');
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'server/data');
@@ -153,38 +177,7 @@ function getSeedData(): DatabaseSchema {
   const now = new Date().toISOString();
 
   return {
-    users: [
-      {
-        id: 'usr_admin_1',
-        name: 'Administrator',
-        email: 'admin@fedpolyukana.edu.ng',
-        password_hash: hashPassword('admin123'),
-        role: 'admin',
-        status: 'active',
-        created_at: now,
-        updated_at: now,
-      },
-      {
-        id: 'usr_editor_1',
-        name: 'Academic Affairs Editor',
-        email: 'editor@fedpolyukana.edu.ng',
-        password_hash: hashPassword('editor123'),
-        role: 'editor',
-        status: 'active',
-        created_at: now,
-        updated_at: now,
-      },
-      {
-        id: 'usr_visitor_1',
-        name: 'Prospective Student',
-        email: 'visitor@fedpolyukana.edu.ng',
-        password_hash: hashPassword('visitor123'),
-        role: 'visitor',
-        status: 'active',
-        created_at: now,
-        updated_at: now,
-      },
-    ],
+    users: [],
     programmes: [
       {
         id: 'prog_cs',
@@ -904,6 +897,8 @@ class Database {
       try {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         this.data = JSON.parse(raw);
+        this.removeDemoAccounts();
+        this.provisionInitialAdmin();
       } catch (err) {
         console.error('Error reading database file, resetting to seed data:', err);
         this.data = getSeedData();
@@ -911,8 +906,44 @@ class Database {
       }
     } else {
       this.data = getSeedData();
+      this.provisionInitialAdmin();
       this.save();
     }
+  }
+
+  private provisionInitialAdmin() {
+    if (this.data.users.some((user) => user.role === 'admin' && user.status === 'active')) return;
+
+    const email = process.env.INITIAL_ADMIN_EMAIL?.trim().toLowerCase();
+    const password = process.env.INITIAL_ADMIN_PASSWORD;
+    if (!email || !password) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12 || password.length > 128) {
+      throw new Error('INITIAL_ADMIN_EMAIL must be valid and INITIAL_ADMIN_PASSWORD must be 12-128 characters.');
+    }
+
+    const existingUser = this.data.users.find((user) => user.email.toLowerCase() === email);
+    if (existingUser) {
+      throw new Error('Cannot provision the initial administrator: INITIAL_ADMIN_EMAIL is already assigned.');
+    }
+
+    const now = new Date().toISOString();
+    this.data.users.push({
+      id: `usr_${crypto.randomUUID().slice(0, 8)}`,
+      name: 'System Administrator',
+      email,
+      password_hash: hashPassword(password),
+      role: 'admin',
+      status: 'active',
+      created_at: now,
+      updated_at: now,
+    });
+    this.save();
+  }
+
+  private removeDemoAccounts() {
+    const originalCount = this.data.users.length;
+    this.data.users = this.data.users.filter((user) => !LEGACY_DEMO_USER_IDS.has(user.id));
+    if (this.data.users.length !== originalCount) this.save();
   }
 
   private save() {
@@ -920,6 +951,7 @@ class Database {
       fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
     } catch (err) {
       console.error('Error saving database:', err);
+      throw new Error('Unable to persist database changes.');
     }
   }
 

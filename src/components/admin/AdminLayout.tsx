@@ -25,24 +25,29 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/admin/login');
+    } catch (error) {
+      console.error('Unable to end the server session:', error);
+      window.alert('Sign out could not be completed. Check your connection and try again.');
+    }
   };
 
   const navItems = [
-    { label: 'Overview Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { label: 'Academic Programmes', href: '/admin/programmes', icon: GraduationCap },
-    { label: 'Campus Facilities', href: '/admin/facilities', icon: Building2 },
-    { label: '3D Campus Locations', href: '/admin/campus', icon: Compass },
+    { label: 'Overview Dashboard', href: isAdmin ? '/admin/dashboard' : '/editor/dashboard', icon: LayoutDashboard, adminOnly: isAdmin },
+    { label: 'Academic Programmes', href: '/admin/programmes', icon: GraduationCap, adminOnly: true },
+    { label: 'Campus Facilities', href: '/admin/facilities', icon: Building2, adminOnly: true },
+    { label: '3D Campus Locations', href: '/admin/campus', icon: Compass, adminOnly: true },
     { label: 'Video Advertisements', href: '/admin/videos', icon: Video },
-    { label: 'Admission Information', href: '/admin/admission', icon: FileCheck },
-    { label: 'Announcements', href: '/admin/announcements', icon: Bell },
-    { label: 'Student Enquiries', href: '/admin/enquiries', icon: Mail },
-    { label: 'Engagement Analytics', href: '/admin/analytics', icon: BarChart3 },
-    { label: 'Generate Reports', href: '/admin/reports', icon: FileText },
+    { label: 'Admission Information', href: '/admin/admission', icon: FileCheck, adminOnly: true },
+    { label: 'Announcements', href: '/admin/announcements', icon: Bell, adminOnly: true },
+    { label: 'Student Enquiries', href: '/admin/enquiries', icon: Mail, adminOnly: true },
+    { label: 'Engagement Analytics', href: '/admin/analytics', icon: BarChart3, adminOnly: true },
+    { label: 'Generate Reports', href: '/admin/reports', icon: FileText, adminOnly: true },
     { label: 'User Management', href: '/admin/users', icon: Users, adminOnly: true },
-    { label: 'System Settings', href: '/admin/settings', icon: Settings },
+    { label: 'System Settings', href: '/admin/settings', icon: Settings, adminOnly: true },
   ];
 
   return (
@@ -59,7 +64,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
             />
             <div className="flex flex-col">
               <span className="font-bold text-xs text-white uppercase tracking-wider">
-                Admin Console
+                {isAdmin ? 'Admin Console' : 'Editor Workspace'}
               </span>
               <span className="text-[10px] text-emerald-400 font-mono">
                 FedPoly Ukana

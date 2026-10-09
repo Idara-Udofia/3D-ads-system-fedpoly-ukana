@@ -12,20 +12,15 @@ import {
 
 const API_BASE = '/api';
 
-function getAuthHeader(): Record<string, string> {
-  const token = localStorage.getItem('fedpuka_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const headers = {
     'Content-Type': 'application/json',
-    ...getAuthHeader(),
     ...options.headers,
   };
 
   const res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
+    credentials: 'same-origin',
     headers,
   });
 
@@ -40,18 +35,25 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     throw new Error(errorMsg);
   }
 
+  if (res.status === 204) return undefined as T;
   return res.json();
 }
 
 export const api = {
   // Auth
   login: (credentials: { email: string; password: string }) =>
-    request<{ token: string; user: User }>('/auth/login', {
+    request<{ user: User }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     }),
+  logout: () => request<void>('/auth/logout', { method: 'POST' }),
   getMe: () => request<User>('/auth/me'),
   getUsers: () => request<User[]>('/users'),
+  createUser: (data: { name: string; email: string; password: string; role: 'admin' | 'editor' }) =>
+    request<User>('/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 
   // Programmes
   getProgrammes: (params?: { search?: string; department?: string }) => {

@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import apiRouter from './routes/api.js';
+import { assertAuthConfiguration } from './middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +36,8 @@ app.get('/api/health', (_req, res) => {
 });
 
 async function startServer() {
+  assertAuthConfiguration();
+
   if (!isProd) {
     // Development mode with Vite Middleware
     const { createServer: createViteServer } = await import('vite');

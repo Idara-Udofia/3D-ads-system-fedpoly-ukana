@@ -26,29 +26,27 @@ This web-based system serves as an interactive digital gateway for prospective s
 
 ---
 
-## 3. Demo Login Credentials
+## 3. Staff Authentication
 
-For testing administrative and editorial capabilities:
+The staff login at `/admin/login` accepts institutional email and password. Demo accounts and quick-fill credentials are not provided. The first administrator must be provisioned using `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD` in the server environment; use a unique password of at least 12 characters. These values are used only when the user store has no active administrator. After signing in, administrators can create Admin and Editor accounts in User Management.
 
-| Role | Email | Password | Permissions |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@fedpolyukana.edu.ng` | `admin123` | Full CRUD, User Oversight, System Reports |
-| **Editor** | `editor@fedpolyukana.edu.ng` | `editor123` | Content CRUD (Programmes, Facilities, Videos) |
-| **Visitor** | `visitor@fedpolyukana.edu.ng` | `visitor123` | Public access |
-
-*Note: One-click test login buttons are also provided directly on the `/admin/login` page.*
+Authenticated sessions are held in a signed, eight-hour `HttpOnly`, `SameSite=Strict` cookie (and use the `Secure` flag in production); the browser does not store session tokens in local storage. Administrators are directed to `/admin/dashboard`, while Editors are directed to `/editor/dashboard` and can manage video advertisements only.
 
 ---
 
 ## 4. Environment Variables
 
-Create `.env` using `.env.example`:
+Create `.env` using `.env.example`. Generate a signing secret with Node.js, for example `node -p "require('node:crypto').randomBytes(48).toString('base64url')"`, and set a unique initial administrator password. `JWT_SECRET` must contain at least 32 bytes of random data:
 
-```bash
+```env
 PORT=3000
 NODE_ENV=development
-JWT_SECRET=fedpolyukana_academic_secret_key_2026
+JWT_SECRET=<generated-random-secret>
+INITIAL_ADMIN_EMAIL=admin@fedpolyukana.edu.ng
+INITIAL_ADMIN_PASSWORD=<unique-password-at-least-12-characters>
 ```
+
+Never use the example placeholders as production secrets. Existing seeded demo accounts are removed on database load; provision the first administrator before signing in.
 
 ---
 

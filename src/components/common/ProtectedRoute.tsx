@@ -27,6 +27,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    const dashboard = user.role === 'admin' ? '/admin/dashboard' : '/editor/dashboard';
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-4 text-center">
         <h2 className="text-xl font-bold text-rose-400">Access Denied</h2>
@@ -34,7 +35,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           Your role ({user.role}) does not have permission to view this section.
         </p>
         <a
-          href="/admin/dashboard"
+          href={dashboard}
           className="mt-4 px-4 py-2 bg-slate-800 text-xs font-semibold rounded-lg"
         >
           Return to Dashboard

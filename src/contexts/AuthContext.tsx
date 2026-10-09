@@ -4,39 +4,28 @@ import api from '../services/api';
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isEditor: boolean;
   loading: boolean;
-  login: (credentials: { email: string; password: string }) => Promise<void>;
-  logout: () => void;
+  login: (credentials: { email: string; password: string }) => Promise<User>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('fedpuka_token'));
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadUser() {
-      const storedToken = localStorage.getItem('fedpuka_token');
-      if (!storedToken) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
       try {
         const currentUser = await api.getMe();
         setUser(currentUser);
       } catch (err) {
-        console.warn('Session expired or invalid, logging out:', err);
-        localStorage.removeItem('fedpuka_token');
+        console.warn('Unable to restore the current session:', err);
         setUser(null);
-        setToken(null);
       } finally {
         setLoading(false);
       }
@@ -47,18 +36,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (credentials: { email: string; password: string }) => {
     const res = await api.login(credentials);
-    localStorage.setItem('fedpuka_token', res.token);
-    setToken(res.token);
     setUser(res.user);
+    return res.user;
   };
 
-  const logout = () => {
-    localStorage.removeItem('fedpuka_token');
-    setToken(null);
+  const logout = async () => {
+    await api.logout();
     setUser(null);
   };
 
-  const isAuthenticated = Boolean(user && token);
+  const isAuthenticated = Boolean(user);
   const isAdmin = user?.role === 'admin';
   const isEditor = user?.role === 'admin' || user?.role === 'editor';
 
@@ -66,7 +53,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
-        token,
         isAuthenticated,
         isAdmin,
         isEditor,
