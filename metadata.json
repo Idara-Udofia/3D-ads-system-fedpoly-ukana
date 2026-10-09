@@ -1,0 +1,6 @@
+{
+  "name": "Federal Polytechnic, Ukana - 3D Video Advertisement System",
+  "description": "Interactive Web-Based 3D Video Animation Advertisement System and Virtual Campus Exploration for Federal Polytechnic, Ukana, Akwa Ibom State.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
