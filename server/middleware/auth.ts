@@ -11,8 +11,20 @@ export interface AuthPayload {
   exp: number;
 }
 
+let ephemeralDevelopmentSecret: string | undefined;
+
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
+  if (secret && Buffer.byteLength(secret) >= 32) return secret;
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (!ephemeralDevelopmentSecret) {
+      ephemeralDevelopmentSecret = crypto.randomBytes(48).toString('base64url');
+      console.warn('JWT_SECRET is unset or too short; using an ephemeral development secret. Sessions expire on restart.');
+    }
+    return ephemeralDevelopmentSecret;
+  }
+
   if (!secret || Buffer.byteLength(secret) < 32) {
     throw new Error('JWT_SECRET must be configured with at least 32 bytes of random data.');
   }

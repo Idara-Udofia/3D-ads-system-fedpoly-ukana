@@ -36,7 +36,7 @@ Authenticated sessions are held in a signed, eight-hour `HttpOnly`, `SameSite=St
 
 ## 4. Environment Variables
 
-Create `.env` using `.env.example`. Generate a signing secret with Node.js, for example `node -p "require('node:crypto').randomBytes(48).toString('base64url')"`, and set a unique initial administrator password. `JWT_SECRET` must contain at least 32 bytes of random data:
+Create `.env` using `.env.example`. Development can start without a `.env`; the server generates a temporary random session key, so sessions end when the server restarts. For production, generate a signing secret with Node.js, for example `node -p "require('node:crypto').randomBytes(48).toString('base64url')"`, and set a unique initial administrator password. `JWT_SECRET` must contain at least 32 bytes of random data:
 
 ```env
 PORT=3000

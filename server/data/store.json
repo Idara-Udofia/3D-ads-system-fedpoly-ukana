@@ -7506,6 +7506,483 @@
       "device_type": "desktop",
       "id": "evt_2331b130",
       "timestamp": "2026-10-08T16:54:43.288Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_dbdfc5fa",
+      "timestamp": "2026-10-10T12:15:48.134Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_d9483542",
+      "timestamp": "2026-10-10T12:15:57.132Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_ee8d57fd",
+      "timestamp": "2026-10-10T12:16:04.364Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_6931d0a3",
+      "timestamp": "2026-10-10T12:16:12.804Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_3816e2cd",
+      "timestamp": "2026-10-10T12:16:17.435Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_5dd3c1c1",
+      "timestamp": "2026-10-10T12:16:20.998Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_56acc2ca",
+      "timestamp": "2026-10-10T12:16:31.787Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_469ae9a7",
+      "timestamp": "2026-10-10T12:16:32.334Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_49996263",
+      "timestamp": "2026-10-10T12:16:41.177Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_c6c52006",
+      "timestamp": "2026-10-10T12:16:47.153Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_bbbe5f18",
+      "timestamp": "2026-10-10T12:17:06.115Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_99ba4abf",
+      "timestamp": "2026-10-10T12:17:09.032Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_0cb7ea27",
+      "timestamp": "2026-10-10T12:17:21.680Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_8e1f3096",
+      "timestamp": "2026-10-10T12:17:22.614Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_642de1f9",
+      "timestamp": "2026-10-10T12:17:35.485Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_e8c14f4d",
+      "timestamp": "2026-10-10T12:17:37.188Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_2f05906d",
+      "timestamp": "2026-10-10T12:17:38.203Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_aba01262",
+      "timestamp": "2026-10-10T12:17:44.025Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_57c0b6c7",
+      "timestamp": "2026-10-10T12:17:46.204Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_bfe7f105",
+      "timestamp": "2026-10-10T12:17:48.153Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_c10bd9a3",
+      "timestamp": "2026-10-10T12:17:48.748Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_e217a604",
+      "timestamp": "2026-10-10T12:17:54.095Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_dee7a525",
+      "timestamp": "2026-10-10T12:17:54.288Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_8320b46c",
+      "timestamp": "2026-10-10T12:17:57.115Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_02b148ea",
+      "timestamp": "2026-10-10T12:17:58.554Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_39886e11",
+      "timestamp": "2026-10-10T12:17:59.174Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_1f4de9e4",
+      "timestamp": "2026-10-10T12:18:02.242Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_4bf31b19",
+      "timestamp": "2026-10-10T12:18:03.984Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_da5854c2",
+      "timestamp": "2026-10-10T12:18:06.589Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_0b44c732",
+      "timestamp": "2026-10-10T12:18:13.437Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_a27d97a3",
+      "timestamp": "2026-10-10T12:18:14.593Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_5a9dc8c9",
+      "timestamp": "2026-10-10T12:18:19.624Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_88e81dc1",
+      "timestamp": "2026-10-10T12:18:21.038Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_1310a5b7",
+      "timestamp": "2026-10-10T12:18:21.882Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_a46ec826",
+      "timestamp": "2026-10-10T12:18:24.732Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_8fa1634f",
+      "timestamp": "2026-10-10T12:18:26.121Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_dd991522",
+      "timestamp": "2026-10-10T12:18:26.868Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_e6fee4ed",
+      "timestamp": "2026-10-10T12:18:33.607Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_397d04ce",
+      "timestamp": "2026-10-10T12:18:35.890Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_62924797",
+      "timestamp": "2026-10-10T12:18:36.192Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_7971022a",
+      "timestamp": "2026-10-10T12:18:39.266Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_464debf7",
+      "timestamp": "2026-10-10T12:18:40.431Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_a30607a2",
+      "timestamp": "2026-10-10T12:18:44.309Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_739222bd",
+      "timestamp": "2026-10-10T12:18:46.068Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_292dff49",
+      "timestamp": "2026-10-10T12:18:47.521Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_8f4cd080",
+      "timestamp": "2026-10-10T12:18:53.148Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_e7c80f6c",
+      "timestamp": "2026-10-10T12:18:54.886Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_f6ab58b6",
+      "timestamp": "2026-10-10T12:18:55.533Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_c289199c",
+      "timestamp": "2026-10-10T12:19:02.319Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_12b71103",
+      "timestamp": "2026-10-10T12:19:04.051Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/admin/login",
+      "session_id": "sess_v6xftly1",
+      "device_type": "desktop",
+      "id": "evt_ad2adf6b",
+      "timestamp": "2026-10-10T12:19:07.652Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_8e8c0500",
+      "timestamp": "2026-10-10T12:19:11.254Z"
+    },
+    {
+      "event_type": "page_view",
+      "content_type": "page",
+      "content_id": "/",
+      "session_id": "sess_06v9dzs8",
+      "device_type": "mobile",
+      "id": "evt_26ee7abb",
+      "timestamp": "2026-10-10T12:19:14.379Z"
     }
   ]
 }
